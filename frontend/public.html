@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chennai Environmental Health Status — AEGIS Public Advisory">
+    <title>Chennai Environmental Health Status — AEGIS</title>
+    <link rel="stylesheet" href="/static/css/aegis.css">
+    <style>
+        .debug-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #ff6b6b;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            z-index: 1000;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AEGIS DEBUG MODE ACTIVE -->
+    <div class="debug-banner">AEGIS DEBUG MODE ACTIVE - Public Page Loading</div>
+
+    <!-- Background Effects -->
+    <div class="aegis-bg"></div>
+    <div class="aegis-particles"></div>
+
+    <!-- Soft notification audio (single tone, no loop) -->
+    <audio id="notifySound" preload="none">
+        <!-- Generated programmatically via Web Audio API -->
+    </audio>
+
+    <div class="public-app">
+
+        <!-- Header -->
+        <div class="public-header">
+            <div class="public-city">Chennai, India</div>
+            <div class="public-title">Environmental Health Status</div>
+        </div>
+
+        <!-- Central Status Indicator -->
+        <div class="public-status-ring level-low" id="statusRing">
+            <div class="public-status-text" id="statusText">LOW</div>
+        </div>
+
+        <!-- Risk Levels -->
+        <div class="public-risk-levels">
+            <div class="public-risk-item">
+                <div class="public-risk-label">Air Risk Level</div>
+                <div class="public-risk-value level-low-text" id="publicAirLevel">LOW</div>
+            </div>
+            <div class="public-risk-item">
+                <div class="public-risk-label">Heat Risk Level</div>
+                <div class="public-risk-value level-low-text" id="publicHeatLevel">LOW</div>
+            </div>
+            <div class="public-risk-item">
+                <div class="public-risk-label">Composite Risk Level</div>
+                <div class="public-risk-value level-low-text" id="publicCompositeLevel">LOW</div>
+            </div>
+        </div>
+
+        <!-- Advisory Card -->
+        <div class="public-advisory-card" id="advisoryCard">
+            <div class="public-advisory-label">Health Advisory</div>
+            <div class="public-advisory-message" id="advisoryMessage">
+                Environmental conditions in Chennai are within normal parameters. No special precautions required.
+            </div>
+        </div>
+
+        <!-- Trend View -->
+        <div class="public-chart-container">
+            <div class="public-chart-title">Daily Trend</div>
+            <div class="aegis-panel" style="padding: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <div
+                            style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">
+                            Air Quality</div>
+                        <div class="chart-container" style="height: 160px;">
+                            <canvas class="chart-canvas" id="publicChartAir"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <div
+                            style="font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">
+                            Heat Conditions</div>
+                        <div class="chart-container" style="height: 160px;">
+                            <canvas class="chart-canvas" id="publicChartHeat"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 48px; text-align: center;">
+            <div style="font-size: 10px; color: var(--text-muted); letter-spacing: 1px;">
+                POWERED BY AEGIS — AUTONOMOUS ENVIRONMENTAL INTELLIGENCE
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/public.js"></script>
+</body>
+
+</html>

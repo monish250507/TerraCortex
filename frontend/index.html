@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="AEGIS — Autonomous Environmental Guardian & Intelligence System — Government Intelligence Command Center">
+    <title>AEGIS — Intelligence Command Center</title>
+    <link rel="stylesheet" href="/static/css/aegis.css">
+    <style>
+        .debug-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #ff6b6b;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            z-index: 1000;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- AEGIS DEBUG MODE ACTIVE -->
+    <div class="debug-banner">AEGIS DEBUG MODE ACTIVE - Frontend Loading</div>
+
+    <!-- Background Effects -->
+    <div class="aegis-bg"></div>
+    <div class="aegis-particles"></div>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo-text">AEGIS</div>
+            <div class="login-subtitle">Intelligence Command Center</div>
+            <input type="text" class="login-input" id="loginUser" placeholder="Username" autocomplete="username">
+            <input type="password" class="login-input" id="loginPass" placeholder="Password"
+                autocomplete="current-password">
+            <button class="aegis-btn aegis-btn-primary login-btn" id="loginBtn">AUTHENTICATE</button>
+            <div class="login-error" id="loginError">Authentication failed. Invalid credentials.</div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="aegis-app" id="mainApp" style="display:none;">
+
+        <!-- Header -->
+        <header class="aegis-header">
+            <div class="aegis-logo">
+                <div class="aegis-logo-icon">Δ</div>
+                <div>
+                    <div class="aegis-logo-text">AEGIS</div>
+                    <div class="aegis-logo-subtitle">Autonomous Environmental Intelligence</div>
+                </div>
+            </div>
+            <div class="aegis-header-right">
+                <div class="aegis-status-dot" id="systemDot"></div>
+                <span style="font-size:12px; color: var(--text-muted); font-family: var(--font-mono);"
+                    id="lastUpdated">--:--</span>
+                <button class="aegis-btn aegis-btn-sm" id="triggerCycleBtn" title="Trigger observation cycle">⟳
+                    CYCLE</button>
+                <button class="aegis-btn aegis-btn-sm" id="logoutBtn">LOGOUT</button>
+            </div>
+        </header>
+
+        <main class="aegis-main">
+
+            <!-- Tab Navigation -->
+            <div class="aegis-tabs">
+                <button class="aegis-tab active" data-tab="dashboard">Dashboard</button>
+                <button class="aegis-tab" data-tab="feed">Intelligence Feed</button>
+                <button class="aegis-tab" data-tab="analytics">Timeline Analytics</button>
+                <button class="aegis-tab" data-tab="alerts">Alert Management</button>
+                <button class="aegis-tab" data-tab="health">System Health</button>
+            </div>
+
+            <!-- ═══ DASHBOARD TAB ═══ -->
+            <div class="tab-content active" id="tab-dashboard">
+                <div class="aegis-section-title">Risk Assessment Overview</div>
+                <div class="risk-cards-grid" id="riskCards">
+                    <!-- Air Risk Card -->
+                    <div class="risk-card" data-risk="air" id="cardAir">
+                        <div class="risk-card-header">
+                            <div class="risk-card-label">Air Pollution Risk</div>
+                            <div class="risk-card-status status-normal" id="airStatus">--</div>
+                        </div>
+                        <div class="risk-card-score" id="airScore">--<span class="risk-card-score-unit">/100</span>
+                        </div>
+                        <div class="risk-card-value" id="airValue">PM2.5: -- µg/m³</div>
+                        <div class="risk-card-footer">
+                            <div class="risk-card-confidence" id="airConfidence">Confidence: --%</div>
+                            <div class="risk-card-trend trend-stable" id="airTrend">— Stable</div>
+                        </div>
+                    </div>
+
+                    <!-- Heat Risk Card -->
+                    <div class="risk-card" data-risk="heat" id="cardHeat">
+                        <div class="risk-card-header">
+                            <div class="risk-card-label">Heat Stress Risk</div>
+                            <div class="risk-card-status status-normal" id="heatStatus">--</div>
+                        </div>
+                        <div class="risk-card-score" id="heatScore">--<span class="risk-card-score-unit">/100</span>
+                        </div>
+                        <div class="risk-card-value" id="heatValue">Heat Index: -- °C</div>
+                        <div class="risk-card-footer">
+                            <div class="risk-card-confidence" id="heatConfidence">Confidence: --%</div>
+                            <div class="risk-card-trend trend-stable" id="heatTrend">— Stable</div>
+                        </div>
+                    </div>
+
+                    <!-- Composite Risk Card -->
+                    <div class="risk-card" data-risk="composite" id="cardComposite">
+                        <div class="risk-card-header">
+                            <div class="risk-card-label">Composite Risk</div>
+                            <div class="risk-card-status status-normal" id="compositeStatus">--</div>
+                        </div>
+                        <div class="risk-card-score" id="compositeScore">--<span
+                                class="risk-card-score-unit">/100</span></div>
+                        <div class="risk-card-value" id="compositeValue">Amplification: --</div>
+                        <div class="risk-card-footer">
+                            <div class="risk-card-confidence" id="compositeConfidence">Confidence: --%</div>
+                            <div class="risk-card-trend trend-stable" id="compositeTrend">— Stable</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panels-grid">
+                    <!-- Quick Intelligence Feed -->
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">📡 Latest Intelligence</div>
+                        <div class="feed-list" id="quickFeed">
+                            <div class="empty-state">Waiting for intelligence data...</div>
+                        </div>
+                    </div>
+
+                    <!-- Active Alerts -->
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">⚠ Active Alerts <span id="alertCount"
+                                style="color: var(--accent-glow); margin-left:8px;">0</span></div>
+                        <div class="alert-list" id="quickAlerts">
+                            <div class="empty-state">No active alerts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ FEED TAB ═══ -->
+            <div class="tab-content" id="tab-feed">
+                <div class="aegis-section-title">Intelligence Feed</div>
+                <div class="feed-list" id="fullFeed" style="max-height: 70vh;">
+                    <div class="empty-state">Loading intelligence feed...</div>
+                </div>
+            </div>
+
+            <!-- ═══ ANALYTICS TAB ═══ -->
+            <div class="tab-content" id="tab-analytics">
+                <div class="aegis-section-title">Timeline Analytics</div>
+                <div class="panels-grid">
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">PM2.5 Air Quality Trend</div>
+                        <div class="chart-container">
+                            <canvas class="chart-canvas" id="chartAir"></canvas>
+                        </div>
+                    </div>
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">Heat Index Trend</div>
+                        <div class="chart-container">
+                            <canvas class="chart-canvas" id="chartHeat"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="aegis-panel" style="margin-top: 20px;">
+                    <div class="aegis-panel-title">Composite Risk Score Trend</div>
+                    <div class="chart-container">
+                        <canvas class="chart-canvas" id="chartComposite"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ ALERTS TAB ═══ -->
+            <div class="tab-content" id="tab-alerts">
+                <div class="aegis-section-title">Alert Management</div>
+                <div class="panels-grid">
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">🔴 Active Alerts</div>
+                        <div class="alert-list" id="activeAlerts">
+                            <div class="empty-state">No active alerts</div>
+                        </div>
+                    </div>
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">✓ Past Alerts</div>
+                        <div class="alert-list" id="pastAlerts">
+                            <div class="empty-state">No past alerts</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <button class="aegis-btn aegis-btn-primary" id="generateAdvisoryBtn">Generate Official
+                        Advisory</button>
+                </div>
+                <div id="advisoryDraft" style="display:none; margin-top: 16px;" class="aegis-panel">
+                    <div class="aegis-panel-title">Draft Advisory</div>
+                    <p id="advisoryDraftText"
+                        style="font-size:14px; line-height:1.7; margin-bottom:16px; color: var(--text-secondary);"></p>
+                    <button class="aegis-btn aegis-btn-primary" id="approveAdvisoryBtn">Approve & Publish</button>
+                </div>
+            </div>
+
+            <!-- ═══ HEALTH TAB ═══ -->
+            <div class="tab-content" id="tab-health">
+                <div class="aegis-section-title">System Health</div>
+                <div class="panels-grid">
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">🔌 API Connectivity</div>
+                        <div class="health-grid" id="apiHealthGrid">
+                            <div class="health-item"><span class="health-item-name">OpenAQ (Air Quality)</span><span
+                                    class="health-item-status" id="healthOpenAQ">--</span></div>
+                            <div class="health-item"><span class="health-item-name">OpenWeather (Heat Data)</span><span
+                                    class="health-item-status" id="healthOpenWeather">--</span></div>
+                            <div class="health-item"><span class="health-item-name">OpenRouter (Claude AI)</span><span
+                                    class="health-item-status" id="healthOpenRouter">--</span></div>
+                        </div>
+                    </div>
+                    <div class="aegis-panel">
+                        <div class="aegis-panel-title">⚙ Engine Status</div>
+                        <div class="health-grid" id="healthGrid">
+                            <div class="health-item"><span class="health-item-name">Observer Agent</span><span
+                                    class="health-item-status" id="healthObserver">--</span></div>
+                            <div class="health-item"><span class="health-item-name">Detection Engine</span><span
+                                    class="health-item-status" id="healthDetection">--</span></div>
+                            <div class="health-item"><span class="health-item-name">Investigation Engine</span><span
+                                    class="health-item-status" id="healthInvestigation">--</span></div>
+                            <div class="health-item"><span class="health-item-name">Explanation Engine</span><span
+                                    class="health-item-status" id="healthExplanation">--</span></div>
+                            <div class="health-item"><span class="health-item-name">Autonomy Mode</span><span
+                                    class="health-item-status" id="healthAutonomy">--</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-title" id="modalTitle">Risk Detail</div>
+            <div class="modal-detail-grid" id="modalGrid"></div>
+            <div class="modal-summary" id="modalSummary">
+                <div class="modal-summary-label">Intelligence Summary</div>
+                <div id="modalSummaryText">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/government.js"></script>
+</body>
+
+</html>
