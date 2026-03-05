@@ -4,12 +4,12 @@ AEGIS Heat Stress Risk Model — Heat Index deviation, persistence, seasonal bas
 from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from models import EnvironmentalReading
+from models import ZoneObservation
 from engine.baseline import get_baseline, get_zscore, get_percentile_rank
 
 
 def calculate_heat_risk(
-    db: Session, heat_index: float, current_hour: int
+    db: Session, zone_obs: ZoneObservation, current_hour: int
 ) -> dict:
     """
     Calculate heat stress risk score (0–100) and confidence.
@@ -20,7 +20,8 @@ def calculate_heat_risk(
     - Persistence of elevated heat (25% weight)
     - Rate of temperature change (15% weight)
     """
-    baseline = get_baseline(db, current_hour, "heat_index")
+    heat_index = zone_obs.heat_index
+    baseline = get_baseline(db, zone_obs.zone_id, current_hour, "heat_index")
 
     # ── Heat Index danger level ──
     # Caution starts at 27°C HI, Extreme above 54°C HI
@@ -42,15 +43,16 @@ def calculate_heat_risk(
     zscore_risk = min(100, max(0, abs(zscore) * 18))
 
     # ── Persistence ──
-    persistence_hours = _count_heat_elevated_hours(db, threshold=32)
+    persistence_hours = _count_heat_elevated_hours(db, zone_obs.zone_id, threshold=32)
     persistence_risk = min(100, persistence_hours * 10)
 
     # ── Rate of change ──
     rate_risk = 0.0
     rate_of_change = 0.0
     recent = (
-        db.query(EnvironmentalReading)
-        .order_by(desc(EnvironmentalReading.timestamp))
+        db.query(ZoneObservation)
+        .filter(ZoneObservation.zone_id == zone_obs.zone_id)
+        .order_by(desc(ZoneObservation.timestamp))
         .limit(2)
         .all()
     )
@@ -90,11 +92,12 @@ def calculate_heat_risk(
     }
 
 
-def _count_heat_elevated_hours(db: Session, threshold: float = 32) -> int:
-    """Count consecutive hours heat index has been above threshold."""
+def _count_heat_elevated_hours(db: Session, zone_id: int, threshold: float = 32) -> int:
+    """Count consecutive hours heat index has been above threshold in this zone."""
     readings = (
-        db.query(EnvironmentalReading)
-        .order_by(desc(EnvironmentalReading.timestamp))
+        db.query(ZoneObservation)
+        .filter(ZoneObservation.zone_id == zone_id)
+        .order_by(desc(ZoneObservation.timestamp))
         .limit(24)
         .all()
     )

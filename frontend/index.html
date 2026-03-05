@@ -8,28 +8,9 @@
         content="AEGIS — Autonomous Environmental Guardian & Intelligence System — Government Intelligence Command Center">
     <title>AEGIS — Intelligence Command Center</title>
     <link rel="stylesheet" href="/static/css/aegis.css">
-    <style>
-        .debug-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: #ff6b6b;
-            color: white;
-            text-align: center;
-            padding: 8px;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-            z-index: 1000;
-            display: block;
-        }
-    </style>
 </head>
 
 <body>
-    <!-- AEGIS DEBUG MODE ACTIVE -->
-    <div class="debug-banner">AEGIS DEBUG MODE ACTIVE - Frontend Loading</div>
-
     <!-- Background Effects -->
     <div class="aegis-bg"></div>
     <div class="aegis-particles"></div>
@@ -128,9 +109,45 @@
                             <div class="risk-card-trend trend-stable" id="compositeTrend">— Stable</div>
                         </div>
                     </div>
+
+                    <!-- Vector Disease Risk Card -->
+                    <div class="risk-card" data-risk="vector" id="cardVector">
+                        <div class="risk-card-header">
+                            <div class="risk-card-label">Vector Disease Risk</div>
+                            <div class="risk-card-status status-normal" id="vectorStatus">--</div>
+                        </div>
+                        <div class="risk-card-score" id="vectorScore">--<span
+                                class="risk-card-score-unit">/100</span></div>
+                        <div class="risk-card-value" id="vectorValue">Mosquito Breeding: --</div>
+                        <div class="risk-card-footer">
+                            <div class="risk-card-confidence" id="vectorConfidence">Confidence: --%</div>
+                            <div class="risk-card-trend trend-stable" id="vectorTrend">— Stable</div>
+                        </div>
+                    </div>
+
+                    <!-- Water Contamination Risk Card -->
+                    <div class="risk-card" data-risk="water_contamination" id="cardWaterContamination">
+                        <div class="risk-card-header">
+                            <div class="risk-card-label">Water Contamination Risk</div>
+                            <div class="risk-card-status status-normal" id="water_contaminationStatus">--</div>
+                        </div>
+                        <div class="risk-card-score" id="water_contaminationScore">--<span
+                                class="risk-card-score-unit">/100</span></div>
+                        <div class="risk-card-value" id="water_contaminationValue">Water Quality: --</div>
+                        <div class="risk-card-footer">
+                            <div class="risk-card-confidence" id="water_contaminationConfidence">Confidence: --%</div>
+                            <div class="risk-card-trend trend-stable" id="water_contaminationTrend">— Stable</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="panels-grid">
+                    <!-- Interactive Zone Map -->
+                    <div class="aegis-panel" style="grid-column: 1 / -1;">
+                        <div class="aegis-panel-title">Interactive Zone Map</div>
+                        <div id="gov-map-container" style="height: 300px; width: 100%; position: relative;"></div>
+                    </div>
+
                     <!-- Quick Intelligence Feed -->
                     <div class="aegis-panel">
                         <div class="aegis-panel-title">📡 Latest Intelligence</div>
@@ -262,6 +279,7 @@
     </div>
 
     <script src="/static/js/charts.js"></script>
+    <script src="/static/js/ZoneMap.js"></script>
     <script src="/static/js/government.js"></script>
 </body>
 

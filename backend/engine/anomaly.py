@@ -5,13 +5,12 @@ from engine.baseline import get_baseline, get_zscore, get_percentile_rank
 from config import ANOMALY_ZSCORE_THRESHOLD, ANOMALY_PERCENTILE_THRESHOLD, ANOMALY_RATE_MULTIPLIER
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from models import EnvironmentalReading
+from models import ZoneObservation
 
 
 def detect_anomalies(
     db: Session,
-    pm25: float,
-    heat_index: float,
+    zone_obs: ZoneObservation,
     current_hour: int,
 ) -> dict:
     """
@@ -27,8 +26,11 @@ def detect_anomalies(
     descriptions = []
     is_anomaly = False
 
-    pm25_baseline = get_baseline(db, current_hour, "pm25")
-    heat_baseline = get_baseline(db, current_hour, "heat_index")
+    pm25 = zone_obs.pm25
+    heat_index = zone_obs.heat_index
+
+    pm25_baseline = get_baseline(db, zone_obs.zone_id, current_hour, "pm25")
+    heat_baseline = get_baseline(db, zone_obs.zone_id, current_hour, "heat_index")
 
     # ── 1. Z-score threshold ──
     pm25_zscore = get_zscore(pm25, pm25_baseline) if pm25_baseline else 0.0
@@ -71,8 +73,9 @@ def detect_anomalies(
 
     # ── 3. Rate-of-change spike ──
     recent = (
-        db.query(EnvironmentalReading)
-        .order_by(desc(EnvironmentalReading.timestamp))
+        db.query(ZoneObservation)
+        .filter(ZoneObservation.zone_id == zone_obs.zone_id)
+        .order_by(desc(ZoneObservation.timestamp))
         .limit(2)
         .all()
     )

@@ -7,28 +7,9 @@
     <meta name="description" content="Chennai Environmental Health Status — AEGIS Public Advisory">
     <title>Chennai Environmental Health Status — AEGIS</title>
     <link rel="stylesheet" href="/static/css/aegis.css">
-    <style>
-        .debug-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: #ff6b6b;
-            color: white;
-            text-align: center;
-            padding: 8px;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-            z-index: 1000;
-            display: block;
-        }
-    </style>
 </head>
 
 <body>
-    <!-- AEGIS DEBUG MODE ACTIVE -->
-    <div class="debug-banner">AEGIS DEBUG MODE ACTIVE - Public Page Loading</div>
-
     <!-- Background Effects -->
     <div class="aegis-bg"></div>
     <div class="aegis-particles"></div>
@@ -62,6 +43,14 @@
                 <div class="public-risk-value level-low-text" id="publicHeatLevel">LOW</div>
             </div>
             <div class="public-risk-item">
+                <div class="public-risk-label">Vector Disease Risk</div>
+                <div class="public-risk-value level-low-text" id="publicVectorLevel">LOW</div>
+            </div>
+            <div class="public-risk-item">
+                <div class="public-risk-label">Water Contamination Risk</div>
+                <div class="public-risk-value level-low-text" id="publicWaterContaminationLevel">LOW</div>
+            </div>
+            <div class="public-risk-item">
                 <div class="public-risk-label">Composite Risk Level</div>
                 <div class="public-risk-value level-low-text" id="publicCompositeLevel">LOW</div>
             </div>
@@ -77,6 +66,11 @@
 
         <!-- Trend View -->
         <div class="public-chart-container">
+            <div class="public-chart-title">Interactive Zone Map</div>
+            <div class="aegis-panel" style="padding: 16px; margin-bottom: 24px;">
+                <div id="public-map-container" style="height: 300px; width: 100%; position: relative;"></div>
+            </div>
+
             <div class="public-chart-title">Daily Trend</div>
             <div class="aegis-panel" style="padding: 16px;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -110,6 +104,7 @@
     </div>
 
     <script src="/static/js/charts.js"></script>
+    <script src="/static/js/ZoneMap.js"></script>
     <script src="/static/js/public.js"></script>
 </body>
 

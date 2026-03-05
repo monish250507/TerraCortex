@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 from database import get_db
-from models import RiskAssessment, Advisory, EnvironmentalReading
+from models import RiskAssessment, Advisory, EnvironmentalReading, Zone
 
 router = APIRouter(prefix="/api/public", tags=["Public"])
 
@@ -28,6 +28,8 @@ def get_public_status(db: Session = Depends(get_db)):
             "overall": "LOW",
             "air_level": "LOW",
             "heat_level": "LOW",
+            "vector_level": "LOW",
+            "water_contamination_level": "LOW",
             "composite_level": "LOW",
             "last_updated": None,
         }
@@ -36,6 +38,8 @@ def get_public_status(db: Session = Depends(get_db)):
         "overall": _level(latest.composite_score),
         "air_level": _level(latest.air_score),
         "heat_level": _level(latest.heat_score),
+        "vector_level": latest.vector_risk_level or "LOW",
+        "water_contamination_level": latest.water_contamination_risk_level or "LOW",
         "composite_level": _level(latest.composite_score),
         "last_updated": latest.timestamp.isoformat() if latest.timestamp else None,
     }
@@ -68,6 +72,36 @@ def get_public_advisory(db: Session = Depends(get_db)):
         "severity": advisory.severity,
         "published_at": advisory.published_at.isoformat() if advisory.published_at else None,
     }
+
+
+@router.get("/zones/risk")
+def get_public_zones_risk(db: Session = Depends(get_db)):
+    """
+    Aggregated latest risk for all zones for the public interactive map.
+    Keyed by Zone Name: { "North": { composite_score: 45, air_score: 30... }... }
+    """
+    zones = db.query(Zone).all()
+    results = {}
+    
+    for z in zones:
+        latest = (
+            db.query(RiskAssessment)
+            .filter(RiskAssessment.zone_id == z.id)
+            .order_by(desc(RiskAssessment.timestamp))
+            .first()
+        )
+        if latest:
+            results[z.name] = {
+                "composite_score": latest.composite_score,
+                "air_score": latest.air_score,
+                "heat_score": latest.heat_score,
+                "smoke_score": latest.smoke_score or 0.0,
+                "flood_score": latest.flood_score or 0.0,
+                "vector_risk": latest.vector_risk or 0.0,
+                "water_contamination_risk": latest.water_contamination_risk or 0.0,
+            }
+            
+    return results
 
 
 @router.get("/trends")

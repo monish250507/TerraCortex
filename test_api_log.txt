@@ -1,0 +1,43 @@
+INFO:aegis.seeder:Seeding 5 zones for Chennai...
+INFO:aegis.seeder:Successfully seeded 5 zones.
+INFO:aegis.tests.api:Testing Admin Login...
+INFO:httpx:HTTP Request: POST http://testserver/api/gov/login "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Admin Login: PASS
+INFO:aegis.tests.api:Triggering autonomous cycle to populate datastore...
+INFO:AEGIS:\u2550\u2550\u2550 AEGIS Autonomous Cycle Started \u2550\u2550\u2550
+WARNING:aegis.services.air_quality:OPENAQ_API_KEY not set — cannot fetch real data
+INFO:aegis.services.air_quality:Using simulated PM2.5 (reason: no_key): 48.2
+WARNING:aegis.services.weather:OPENWEATHER_API_KEY not set — cannot fetch real data
+INFO:aegis.services.weather:Using simulated weather (reason: no_key): 25.1°C, 49% RH
+INFO:aegis.observer:Observation recorded — PM2.5: 48.2, Temp: 25.1, HI: 24.9 [air:simulated, weather:simulated]
+INFO:AEGIS:Observed Global: PM2.5=48.2, Temp=25.1°C, HI=24.9°C
+WARNING:aegis.engine.smoke_risk:NASA_EARTH_API_KEY not set. Using empty hotspot list.
+INFO:aegis.services.explanation:Risk below threshold (6.9) — using template
+INFO:aegis.services.explanation:Risk below threshold (7.4) — using template
+INFO:aegis.services.explanation:Risk below threshold (7.3) — using template
+INFO:aegis.services.explanation:Risk below threshold (7.8) — using template
+INFO:aegis.services.explanation:Risk below threshold (7.6) — using template
+INFO:AEGIS:\u2550\u2550\u2550 AEGIS Autonomous Cycle Complete \u2550\u2550\u2550
+INFO:httpx:HTTP Request: POST http://testserver/api/trigger-cycle "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Testing Public Endpoints...
+INFO:httpx:HTTP Request: GET http://testserver/api/public/zones/risk "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Public /zones/risk: PASS
+INFO:httpx:HTTP Request: GET http://testserver/api/public/status "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Public /api/public/status: PASS
+INFO:httpx:HTTP Request: GET http://testserver/api/public/trends "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Public /api/public/trends: PASS
+INFO:httpx:HTTP Request: GET http://testserver/api/public/advisory "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Public /api/public/advisory: PASS
+INFO:aegis.tests.api:Testing Admin Endpoints...
+INFO:httpx:HTTP Request: GET http://testserver/api/gov/dashboard "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Admin Dashboard: PASS
+INFO:aegis.tests.api:Testing /api/gov/simulate...
+INFO:httpx:HTTP Request: POST http://testserver/api/gov/simulate "HTTP/1.1 200 OK"
+ERROR:aegis.tests.api:Intervention Simulation payload invalid: {'baseline_composite_risk': 6.9, 'projected_risk': 5.7, 'risk_reduction_percentage': 17.4, 'confidence_estimate': 21.5}
+INFO:aegis.tests.api:Testing /api/gov/optimize-resources...
+INFO:httpx:HTTP Request: POST http://testserver/api/gov/optimize-resources "HTTP/1.1 200 OK"
+INFO:aegis.tests.api:Resource Optimization: PASS (Contains allocation_matrix)
+========================================
+AEGIS API VALIDATION REPORT
+========================================
+Overall Status: FAIL

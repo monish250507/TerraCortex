@@ -2,10 +2,42 @@
 AEGIS ORM Models — All database entities.
 """
 from sqlalchemy import (
-    Column, Integer, Float, String, Boolean, DateTime, Text, JSON
+    Column, Integer, Float, String, Boolean, DateTime, Text, JSON, ForeignKey
 )
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from database import Base
+
+
+class Zone(Base):
+    """Spatial zone for localized environmental monitoring."""
+    __tablename__ = "zones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    geojson_boundary = Column(JSON, nullable=True)
+    population = Column(Integer, nullable=True)
+    area_km2 = Column(Float, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    observations = relationship("ZoneObservation", back_populates="zone", cascade="all, delete-orphan")
+    assessments = relationship("RiskAssessment", back_populates="zone", cascade="all, delete-orphan")
+
+
+class ZoneObservation(Base):
+    """Time-series environmental observation data mapped to a specific zone."""
+    __tablename__ = "zone_observations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=False, index=True)
+    pm25 = Column(Float, nullable=False)
+    temperature = Column(Float, nullable=False)
+    humidity = Column(Float, nullable=False)
+    rainfall = Column(Float, nullable=True)
+    heat_index = Column(Float, nullable=False)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+    zone = relationship("Zone", back_populates="observations")
 
 
 class EnvironmentalReading(Base):
@@ -25,6 +57,7 @@ class BaselineRecord(Base):
     __tablename__ = "baseline_records"
 
     id = Column(Integer, primary_key=True, index=True)
+    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=True, index=True)
     hour_of_day = Column(Integer, nullable=False, index=True)
     metric = Column(String(50), nullable=False)  # 'pm25' or 'heat_index'
     mean = Column(Float, nullable=False)
@@ -39,6 +72,7 @@ class RiskAssessment(Base):
     __tablename__ = "risk_assessments"
 
     id = Column(Integer, primary_key=True, index=True)
+    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=True, index=True)
     air_score = Column(Float, nullable=False)
     air_confidence = Column(Float, nullable=False)
     heat_score = Column(Float, nullable=False)
@@ -56,6 +90,15 @@ class RiskAssessment(Base):
     heat_index = Column(Float, nullable=True)
     pm25_zscore = Column(Float, nullable=True)
     heat_zscore = Column(Float, nullable=True)
+    smoke_score = Column(Float, nullable=True)
+    smoke_confidence = Column(Float, nullable=True)
+    hotspot_count = Column(Integer, nullable=True)
+    flood_score = Column(Float, nullable=True)
+    flood_alert_level = Column(String(50), nullable=True)
+    vector_risk = Column(Float, nullable=True)
+    vector_risk_level = Column(String(50), nullable=True)
+    water_contamination_risk = Column(Float, nullable=True)
+    water_contamination_risk_level = Column(String(50), nullable=True)
     pm25_baseline_mean = Column(Float, nullable=True)
     heat_baseline_mean = Column(Float, nullable=True)
     pm25_percentile = Column(Float, nullable=True)
@@ -63,6 +106,8 @@ class RiskAssessment(Base):
     amplification_factor = Column(Float, nullable=True)
     intelligence_summary = Column(Text, nullable=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+    zone = relationship("Zone", back_populates="assessments")
 
 
 class Alert(Base):

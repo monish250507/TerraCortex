@@ -5,12 +5,12 @@ from typing import Optional
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from models import EnvironmentalReading
+from models import ZoneObservation
 from engine.baseline import get_baseline, get_zscore, get_percentile_rank
 
 
 def calculate_air_risk(
-    db: Session, current_pm25: float, current_hour: int
+    db: Session, zone_obs: ZoneObservation, current_hour: int
 ) -> dict:
     """
     Calculate air pollution risk score (0–100) and confidence.
@@ -21,7 +21,8 @@ def calculate_air_risk(
     - Persistence of elevated levels (25% weight)
     - Absolute PM2.5 level (15% weight)
     """
-    baseline = get_baseline(db, current_hour, "pm25")
+    current_pm25 = zone_obs.pm25
+    baseline = get_baseline(db, zone_obs.zone_id, current_hour, "pm25")
 
     # ── Z-score component ──
     zscore = get_zscore(current_pm25, baseline) if baseline else 0.0
@@ -30,8 +31,9 @@ def calculate_air_risk(
     # ── Rate of change ──
     rate_risk = 0.0
     recent = (
-        db.query(EnvironmentalReading)
-        .order_by(desc(EnvironmentalReading.timestamp))
+        db.query(ZoneObservation)
+        .filter(ZoneObservation.zone_id == zone_obs.zone_id)
+        .order_by(desc(ZoneObservation.timestamp))
         .limit(2)
         .all()
     )
@@ -42,7 +44,7 @@ def calculate_air_risk(
         rate_risk = min(100, max(0, abs(rate_of_change) * 2))
 
     # ── Persistence ──
-    persistence_hours = _count_elevated_hours(db, threshold=35)
+    persistence_hours = _count_elevated_hours(db, zone_obs.zone_id, threshold=35)
     persistence_risk = min(100, persistence_hours * 12)
 
     # ── Absolute level ──
@@ -81,11 +83,12 @@ def calculate_air_risk(
     }
 
 
-def _count_elevated_hours(db: Session, threshold: float = 35) -> int:
-    """Count consecutive hours PM2.5 has been above threshold."""
+def _count_elevated_hours(db: Session, zone_id: int, threshold: float = 35) -> int:
+    """Count consecutive hours PM2.5 has been above threshold in this zone."""
     readings = (
-        db.query(EnvironmentalReading)
-        .order_by(desc(EnvironmentalReading.timestamp))
+        db.query(ZoneObservation)
+        .filter(ZoneObservation.zone_id == zone_id)
+        .order_by(desc(ZoneObservation.timestamp))
         .limit(24)
         .all()
     )

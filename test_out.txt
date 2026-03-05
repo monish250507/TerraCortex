@@ -1,0 +1,43 @@
+2026-03-04 11:58:30,101 - aegis.tests - INFO - Setting up test database...
+2026-03-04 11:58:30,592 - aegis.seeder - INFO - Seeding 5 zones for Chennai...
+2026-03-04 11:58:30,605 - aegis.seeder - INFO - Successfully seeded 5 zones.
+2026-03-04 11:58:30,606 - aegis.tests - INFO - Successfully configured 5 zones.
+2026-03-04 11:58:30,606 - aegis.tests - INFO - Executing normal autonomous cycle...
+2026-03-04 11:58:30,608 - AEGIS - INFO - \u2550\u2550\u2550 AEGIS Autonomous Cycle Started \u2550\u2550\u2550
+2026-03-04 11:58:30,608 - aegis.services.air_quality - WARNING - OPENAQ_API_KEY not set — cannot fetch real data
+2026-03-04 11:58:30,608 - aegis.services.air_quality - INFO - Using simulated PM2.5 (reason: no_key): 60.1
+2026-03-04 11:58:30,608 - aegis.services.weather - WARNING - OPENWEATHER_API_KEY not set — cannot fetch real data
+2026-03-04 11:58:30,608 - aegis.services.weather - INFO - Using simulated weather (reason: no_key): 26.0°C, 70% RH
+2026-03-04 11:58:30,624 - aegis.observer - INFO - Observation recorded — PM2.5: 60.1, Temp: 26.1, HI: 26.6 [air:simulated, weather:simulated]
+2026-03-04 11:58:30,624 - AEGIS - INFO - Observed Global: PM2.5=60.1, Temp=26.1°C, HI=26.6°C
+2026-03-04 11:58:30,642 - aegis.engine.smoke_risk - WARNING - NASA_EARTH_API_KEY not set. Using empty hotspot list.
+2026-03-04 11:58:30,691 - AEGIS - ERROR - Autonomous cycle error: name 'compute_hazard_interactions' is not defined
+Traceback (most recent call last):
+  File "c:\Users\monis\OneDrive\Documents\Desktop\TERRACORTEX\TerraCortex\backend\main.py", line 93, in autonomous_cycle
+    composite_result = calculate_composite_risk(
+  File "c:\Users\monis\OneDrive\Documents\Desktop\TERRACORTEX\TerraCortex\backend\engine\composite_risk.py", line 44, in calculate_composite_risk
+    interactions = compute_hazard_interactions(
+NameError: name 'compute_hazard_interactions' is not defined
+2026-03-04 11:58:30,694 - aegis.tests - INFO - Normal cycle execution took 0.09 seconds.
+2026-03-04 11:58:30,710 - aegis.tests - INFO - Database Records -> ZoneObservations: 5, RiskAssessments: 0, Feed Entries: 1
+2026-03-04 11:58:30,710 - aegis.tests - ERROR - Failed to generate observations or assessments for all 5 zones.
+2026-03-04 11:58:30,710 - aegis.tests - INFO - Executing API failure simulation cycle...
+2026-03-04 11:58:30,718 - AEGIS - INFO - \u2550\u2550\u2550 AEGIS Autonomous Cycle Started \u2550\u2550\u2550
+2026-03-04 11:58:30,718 - AEGIS - ERROR - Autonomous cycle error: OpenAQ Timeout
+Traceback (most recent call last):
+  File "c:\Users\monis\OneDrive\Documents\Desktop\TERRACORTEX\TerraCortex\backend\main.py", line 59, in autonomous_cycle
+    global_reading = await run_observation_cycle(db)
+  File "c:\Users\monis\OneDrive\Documents\Desktop\TERRACORTEX\TerraCortex\backend\engine\observer.py", line 27, in run_observation_cycle
+    air_data = await AirQualityService.fetch_pm25(CITY_NAME)
+  File "C:\Users\monis\AppData\Local\Programs\Python\Python39\lib\unittest\mock.py", line 2154, in _execute_mock_call
+    raise effect
+Exception: OpenAQ Timeout
+2026-03-04 11:58:30,722 - aegis.tests - INFO - Pipeline gracefully handled API failures without crashing.
+2026-03-04 11:58:30,722 - aegis.tests - INFO - Failure simulation cycle took 0.01 seconds.
+2026-03-04 11:58:30,722 - aegis.tests - ERROR - Integration tests failed.
+==================================================
+AEGIS INTEGRATION TEST REPORT
+==================================================
+Normal Cycle Status:      FAIL (0.09s)
+Failure Handling Status:  PASS (0.01s)
+Zones Populated:          5/5

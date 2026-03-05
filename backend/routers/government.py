@@ -15,6 +15,8 @@ from models import (
     IntelligenceFeedEntry, EnvironmentalReading,
 )
 from engine.explainer import generate_public_advisory
+from engine.intervention_simulator import simulate_intervention
+from engine.resource_optimizer import optimize_resources
 
 router = APIRouter(prefix="/api/gov", tags=["Government"])
 
@@ -29,6 +31,13 @@ class LoginRequest(BaseModel):
 class AdvisoryRequest(BaseModel):
     message: Optional[str] = None
     severity: str = "Moderate"
+
+class SimulateRequest(BaseModel):
+    zone_id: int
+    interventions: list[str]
+
+class OptimizeRequest(BaseModel):
+    total_budget: float
 
 
 # ── Auth ─────────────────────────────────────────────────
@@ -97,6 +106,33 @@ def get_dashboard(
         "last_updated": latest.timestamp.isoformat() if latest.timestamp else None,
         "active_alerts": active_alerts,
     }
+
+
+# ── Simulation ───────────────────────────────────────────
+
+@router.post("/simulate")
+def simulate(
+    req: SimulateRequest,
+    db: Session = Depends(get_db),
+    user: GovernmentUser = Depends(get_current_user),
+):
+    """Admin endpoint to simulate the effect of interventions."""
+    result = simulate_intervention(db, req.zone_id, req.interventions)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+@router.post("/optimize-resources")
+def optimize_resource_allocation(
+    req: OptimizeRequest,
+    db: Session = Depends(get_db),
+    user: GovernmentUser = Depends(get_current_user),
+):
+    """Admin endpoint to recommend resource allocation using PuLP."""
+    result = optimize_resources(db, req.total_budget)
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    return result
 
 
 # ── Detailed Intelligence ────────────────────────────────

@@ -6,7 +6,7 @@ from typing import Optional, Dict, List
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
-from models import EnvironmentalReading, BaselineRecord
+from models import ZoneObservation, BaselineRecord
 from config import BASELINE_WINDOW_DAYS, PERCENTILE_BANDS
 
 
@@ -17,33 +17,41 @@ def update_baselines(db: Session):
     """
     cutoff = datetime.now(timezone.utc) - timedelta(days=BASELINE_WINDOW_DAYS)
     readings = (
-        db.query(EnvironmentalReading)
-        .filter(EnvironmentalReading.timestamp >= cutoff)
+        db.query(ZoneObservation)
+        .filter(ZoneObservation.timestamp >= cutoff)
         .all()
     )
 
     if not readings:
         return
 
-    # Group by hour-of-day
-    hourly_pm25: Dict[int, List[float]] = {}
-    hourly_heat: Dict[int, List[float]] = {}
+    # Group by zone_id, then hour-of-day
+    hourly_pm25: Dict[int, Dict[int, List[float]]] = {}
+    hourly_heat: Dict[int, Dict[int, List[float]]] = {}
 
     for r in readings:
+        zid = r.zone_id
         hour = r.timestamp.hour if r.timestamp else 0
-        hourly_pm25.setdefault(hour, []).append(r.pm25)
-        hourly_heat.setdefault(hour, []).append(r.heat_index)
+        
+        if zid not in hourly_pm25:
+            hourly_pm25[zid] = {}
+        if zid not in hourly_heat:
+            hourly_heat[zid] = {}
+            
+        hourly_pm25[zid].setdefault(hour, []).append(r.pm25)
+        hourly_heat[zid].setdefault(hour, []).append(r.heat_index)
 
-    # Update baselines for each hour
-    for hour in range(24):
-        _update_metric_baseline(db, hour, "pm25", hourly_pm25.get(hour, []))
-        _update_metric_baseline(db, hour, "heat_index", hourly_heat.get(hour, []))
+    # Update baselines for each zone and hour
+    for zid in set(list(hourly_pm25.keys()) + list(hourly_heat.keys())):
+        for hour in range(24):
+            _update_metric_baseline(db, zid, hour, "pm25", hourly_pm25.get(zid, {}).get(hour, []))
+            _update_metric_baseline(db, zid, hour, "heat_index", hourly_heat.get(zid, {}).get(hour, []))
 
     db.commit()
 
 
 def _update_metric_baseline(
-    db: Session, hour: int, metric: str, values: List[float]
+    db: Session, zone_id: int, hour: int, metric: str, values: List[float]
 ):
     """Update or create baseline record for a specific hour and metric."""
     if not values:
@@ -74,6 +82,7 @@ def _update_metric_baseline(
         existing.sample_count = len(values)
     else:
         record = BaselineRecord(
+            zone_id=zone_id,
             hour_of_day=hour,
             metric=metric,
             mean=mean,
@@ -84,8 +93,8 @@ def _update_metric_baseline(
         db.add(record)
 
 
-def get_baseline(db: Session, hour: int, metric: str) -> Optional[dict]:
-    """Retrieve baseline for a given hour and metric."""
+def get_baseline(db: Session, zone_id: int, hour: int, metric: str) -> Optional[dict]:
+    """Retrieve baseline for a given zone, hour and metric."""
     record = (
         db.query(BaselineRecord)
         .filter(

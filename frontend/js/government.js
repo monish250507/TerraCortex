@@ -89,10 +89,10 @@
         try {
             const resp = await fetch(`${API}${url}`, { headers: authHeaders() });
             console.log(`API response status: ${resp.status}`);
-            if (resp.status === 401) { 
+            if (resp.status === 401) {
                 console.log('Unauthorized access, logging out');
-                logout(); 
-                throw new Error('Unauthorized'); 
+                logout();
+                throw new Error('Unauthorized');
             }
             if (!resp.ok) {
                 console.error(`API call failed with status: ${resp.status}`);
@@ -118,6 +118,8 @@
             console.log('Dashboard data:', data);
             updateRiskCard('air', data.air);
             updateRiskCard('heat', data.heat);
+            updateRiskCard('vector', data.vector);
+            updateRiskCard('water_contamination', data.water_contamination);
             updateRiskCard('composite', data.composite);
 
             document.getElementById('alertCount').textContent = data.active_alerts;
@@ -324,6 +326,10 @@
             console.log('Chart Heat initialized:', chartHeat);
             chartComposite = new AegisChart('chartComposite', { yLabel: 'Risk Score', yMin: 0, yMax: 100, lineColor: '#7C3AED' });
             console.log('Chart Composite initialized:', chartComposite);
+
+            if (document.getElementById('gov-map-container')) {
+                new ZoneMap('gov-map-container');
+            }
         } catch (error) {
             console.error('Error initializing charts:', error);
         }
@@ -498,21 +504,21 @@
             const loginBtn = document.getElementById('loginBtn');
             const loginPass = document.getElementById('loginPass');
             const logoutBtn = document.getElementById('logoutBtn');
-            
+
             if (loginBtn) {
                 loginBtn.addEventListener('click', login);
                 console.log('Login button event listener added');
             } else {
                 console.error('Login button not found!');
             }
-            
+
             if (loginPass) {
                 loginPass.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
                 console.log('Login password Enter key event listener added');
             } else {
                 console.error('Login password field not found!');
             }
-            
+
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', logout);
                 console.log('Logout button event listener added');
@@ -545,7 +551,7 @@
                 });
                 console.log('Modal close event listener added');
             }
-            
+
             if (detailModal) {
                 detailModal.addEventListener('click', e => {
                     if (e.target === e.currentTarget) e.currentTarget.classList.remove('active');
@@ -556,12 +562,12 @@
             // Advisory
             const generateAdvisoryBtn = document.getElementById('generateAdvisoryBtn');
             const approveAdvisoryBtn = document.getElementById('approveAdvisoryBtn');
-            
+
             if (generateAdvisoryBtn) {
                 generateAdvisoryBtn.addEventListener('click', generateAdvisory);
                 console.log('Generate advisory button event listener added');
             }
-            
+
             if (approveAdvisoryBtn) {
                 approveAdvisoryBtn.addEventListener('click', approveAdvisory);
                 console.log('Approve advisory button event listener added');

@@ -71,6 +71,8 @@
             // Risk levels
             setLevel('publicAirLevel', data.air_level);
             setLevel('publicHeatLevel', data.heat_level);
+            setLevel('publicVectorLevel', data.vector_level);
+            setLevel('publicWaterContaminationLevel', data.water_contamination_level);
             setLevel('publicCompositeLevel', data.composite_level);
         } catch (e) {
             console.error('Status load error:', e);
@@ -157,6 +159,10 @@
             yMax: 4,
             yLabel: 'Level',
         });
+
+        if (document.getElementById('public-map-container')) {
+            new ZoneMap('public-map-container');
+        }
 
         // Initial load
         loadStatus();
